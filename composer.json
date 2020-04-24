@@ -1,0 +1,14 @@
+{
+    "name": "common/platform-lumen",
+    "type": "library",
+    "description": "Ridibooks Platform Team Lumen Library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ridibooks\\": "src/Ridibooks"
+        }
+    },
+    "require": {
+        "laravel/lumen-framework": "^7.0"
+    }
+}

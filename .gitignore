@@ -1,0 +1,8 @@
+vendor/
+composer.lock
+
+.idea/
+
+tests/logs
+tests/report
+.phpunit.result.cache
