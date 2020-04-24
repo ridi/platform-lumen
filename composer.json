@@ -1,5 +1,5 @@
 {
-    "name": "common/platform-lumen",
+    "name": "ridibooks/platform-lumen",
     "type": "library",
     "description": "Ridibooks Platform Team Lumen Library",
     "license": "MIT",
