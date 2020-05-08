@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Ridibooks\Base;
+namespace Ridibooks\Lumen\Base;
 
 use Laravel\Lumen\Application as LumenApplication;
 use Laravel\Lumen\Bootstrap\LoadEnvironmentVariables;
 use Laravel\Lumen\Exceptions\Handler;
+use Ridibooks\Lumen\Constant\ConfigConst;
 
 abstract class BaseApplication
 {
@@ -13,10 +14,14 @@ abstract class BaseApplication
     protected $dir;
     /** @var LumenApplication */
     protected $app;
+    /** @var array */
+    protected $config = [];
 
-    protected function __construct(string $dir)
+    protected function __construct(array $config)
     {
-        $this->dir = $dir;
+        $this->config = array_merge(ConfigConst::DEFAULT_CONFIG, $config);
+        $this->dir = $this->config[ConfigConst::BASE_PATH];
+
         $this->boot();
 
         $this->initView();
@@ -26,10 +31,9 @@ abstract class BaseApplication
         $this->registerExceptionHandler();
     }
 
-    public static function create(string $dir)
+    public static function create(array $config)
     {
-        $called_class = get_called_class();
-        $static = new $called_class($dir);
+        $static = new static($config);
 
         return $static;
     }
@@ -39,6 +43,7 @@ abstract class BaseApplication
         $error_type = error_reporting();
 
         (new LoadEnvironmentVariables($this->dir))->bootstrap();
+        $_ENV['APP_DEBUG'] = $this->config[ConfigConst::DEBUG]; // override debug mode
 
         $this->initEnv();
 
@@ -56,45 +61,30 @@ abstract class BaseApplication
 
     protected function registerServiceProviders(): void
     {
-        $service_providers = $this->getServiceProviders();
+        $service_providers = $this->config[ConfigConst::SERVICE_PROVIDERS] ?? [];
         foreach ($service_providers as $service_provider) {
             $this->app->register($service_provider);
         }
     }
 
-    protected function getServiceProviders(): array
-    {
-        return [];
-    }
-
     protected function registerMiddlewares(): void
     {
-        $middlewares = $this->getMiddlewares();
+        $middlewares = $this->config[ConfigConst::MIDDLEWARES] ?? [];
         if (!empty($middlewares)) {
             $this->app->middleware($middlewares);
         }
 
-        $route_middlewares = $this->getRouteMiddlewares();
+        $route_middlewares = $this->config[ConfigConst::ROUTE_MIDDLEWARES] ?? [];
         if (!empty($route_middlewares)) {
             $this->app->routeMiddleware($route_middlewares);
         }
-    }
-
-    protected function getMiddlewares(): array
-    {
-        return [];
-    }
-
-    protected function getRouteMiddlewares(): array
-    {
-        return [];
     }
 
     abstract protected function routeControllers(): void;
 
     protected function registerExceptionHandler(): void
     {
-        $exception_handler = $this->getExceptionHandler();
+        $exception_handler = $this->config[ConfigConst::EXCEPTION_HANDLER] ?? '';
 
         if ($exception_handler instanceof Handler) {
             $this->app->singleton(
@@ -102,11 +92,6 @@ abstract class BaseApplication
                 $exception_handler
             );
         }
-    }
-
-    protected function getExceptionHandler(): ?Handler
-    {
-        return null;
     }
 
     public function run(): void

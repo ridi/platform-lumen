@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Ridibooks\Exception;
+namespace Ridibooks\Lumen\Exception;
 
 use Laravel\Lumen\Exceptions\Handler;
 
