@@ -22,7 +22,9 @@ abstract class BaseApplication
         $this->config = array_merge(ConfigConst::DEFAULT_CONFIG, $config);
         $this->dir = $this->config[ConfigConst::BASE_PATH];
 
+        $this->beforeBoot();
         $this->boot();
+        $this->afterBoot();
 
         $this->initView();
         $this->registerServiceProviders();
@@ -38,6 +40,10 @@ abstract class BaseApplication
         return $static;
     }
 
+    protected function beforeBoot(): void
+    {
+    }
+
     protected function boot(): void
     {
         $error_type = error_reporting();
@@ -51,6 +57,10 @@ abstract class BaseApplication
         $this->app->withFacades();
 
         error_reporting($error_type);
+    }
+
+    protected function afterBoot(): void
+    {
     }
 
     abstract protected function initEnv(): void;
